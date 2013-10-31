@@ -64,7 +64,8 @@ def main(argv):
 	if not os.path.isdir(output_dir+title):
 		os.system('mkdir '+output_dir+title)
 
-	find_string = 'http://imgcomic.naver.com/webtoon/'+title_id+'/'
+	find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
+
 
 	for episode in range(episode_start, episode_end):
 		if os.path.isfile('./output.output'):
@@ -87,7 +88,9 @@ def main(argv):
 
 		for line in output_file.readlines():
 			line = line.strip()
-			s_idx = line.find(find_string)
+			s_idx = line.find(find_string[0])
+			if s_idx == -1:
+				s_idx = line.find(find_string[1])
 			if s_idx != -1:
 				e_idx = line[s_idx:].find('"')
 				url = line[s_idx:s_idx+e_idx]
@@ -95,7 +98,9 @@ def main(argv):
 				output_name = "%s%s/%s_%03d_%s.jpg" %\
 							(output_dir, title, title, episode, url_split[-1])
 
-				wget_cmd = 'wget -O '+output_name+' '+url
+				wget_cmd = 'wget -O '+output_name+' --header="Referer: '+\
+							page_url+'" '+url
+				print wget_cmd
 				result = os.system(wget_cmd)
 				if result != 0:
 					print '[ERROR] Failed download'
