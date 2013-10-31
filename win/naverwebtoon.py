@@ -98,7 +98,8 @@ def main(argv):
 				url_split = url.split('/')
 				output_name = "%s%s/%s_%03d_%s.jpg" %\
 							(output_dir, title, title, episode, url_split[-1])
-				wget_cmd = 'wget -O '+output_name+' '+url
+				referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
+				wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
 				print wget_cmd
 				result = os.system(wget_cmd)
 				if result != 0:
