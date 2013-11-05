@@ -14,7 +14,7 @@ def usage():
 	print "-e <episode range>         (default: 1-1)"
 	print "-t <title id>"
 	print "-n <title string>          (optional)"
-	print "-o <output directory>      (default: .\\)"
+	print "-o <output directory>      (default: ./)"
 	print
 	print "sample:"
 	print "webtoon.py -e 1-10 -t 22897   (episode 1 ~ 10 download)"
@@ -26,7 +26,7 @@ def main(argv):
 	title = ''
 	episode_start = 1
 	episode_end = 2
-	output_dir = '.\\'
+	output_dir = './'
 	finish = False
 
 	try:
@@ -62,17 +62,15 @@ def main(argv):
 		print "[ERROR] Incorrect episode range"
 
 	if not os.path.isdir(output_dir+title):
-		cmd = 'md "%s"'%(output_dir+title)
-		os.system(cmd)
+		os.system('mkdir '+output_dir+title)
 
-	find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
+	find_string = 'http://imgcomic.naver.com/webtoon/'+title_id+'/'
 
 	for episode in range(episode_start, episode_end):
-		if os.path.isfile('.\\output.output'):
-			os.system('del .\\output.output')
-		page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"'%(title_id, episode)
-		curl_cmd = 'curl -o .\\output.output '+page_url
-		print 'curl cmd: '+curl_cmd
+		if os.path.isfile('./output.output'):
+			os.system('rm ./output.output')
+		page_url = "http://comic.naver.com/webtoon/detail.nhn?titleId=%s\\&no=%d"%(title_id, episode)
+		curl_cmd = 'curl -s -o ./output.output '+page_url
 
 		curl = subprocess.Popen(curl_cmd, shell=True)
 
@@ -81,26 +79,23 @@ def main(argv):
 			if curl.poll() != None:
 				break
 
-		if not os.path.isfile('.\\output.output'):
+		if not os.path.isfile('./output.output'):
 			print '[INFO] Finish!'
 			break
 
-		output_file = open('.\\output.output', 'r')
+		output_file = open('./output.output', 'r')
 
 		for line in output_file.readlines():
 			line = line.strip()
-			s_idx = line.find(find_string[0])
-			if s_idx == -1:
-				s_idx = line.find(find_string[1])
+			s_idx = line.find(find_string)
 			if s_idx != -1:
 				e_idx = line[s_idx:].find('"')
 				url = line[s_idx:s_idx+e_idx]
 				url_split = url.split('/')
 				output_name = "%s%s/%s_%03d_%s.jpg" %\
 							(output_dir, title, title, episode, url_split[-1])
-				referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
-				wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
-				print wget_cmd
+
+				wget_cmd = 'wget -O '+output_name+' '+url
 				result = os.system(wget_cmd)
 				if result != 0:
 					print '[ERROR] Failed download'

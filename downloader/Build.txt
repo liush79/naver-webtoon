@@ -1,0 +1,5 @@
+1. Install Python 2.7.5 
+2. Install py2exe (for 2.7)
+3-1. Run C:\Python27\python.exe setup_naver.py py2exe
+3-1. Run C:\Python27\python.exe setup_daum.py py2exe
+4. You can get the naverwebtoon.exe or daumwebtoon.exe in dist folder.

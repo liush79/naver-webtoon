@@ -14,7 +14,7 @@ def usage():
 	print "-e <episode range>         (default: 1-1)"
 	print "-t <title id>"
 	print "-n <title string>          (optional)"
-	print "-o <output directory>      (default: ./)"
+	print "-o <output directory>      (default: .\\)"
 	print
 	print "sample:"
 	print "webtoon.py -e 1-10 -t 22897   (episode 1 ~ 10 download)"
@@ -26,7 +26,7 @@ def main(argv):
 	title = ''
 	episode_start = 1
 	episode_end = 2
-	output_dir = './'
+	output_dir = '.\\'
 	finish = False
 
 	try:
@@ -62,16 +62,17 @@ def main(argv):
 		print "[ERROR] Incorrect episode range"
 
 	if not os.path.isdir(output_dir+title):
-		os.system('mkdir '+output_dir+title)
+		cmd = 'md "%s"'%(output_dir+title)
+		os.system(cmd)
 
 	find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
 
-
 	for episode in range(episode_start, episode_end):
-		if os.path.isfile('./output.output'):
-			os.system('rm ./output.output')
-		page_url = "http://comic.naver.com/webtoon/detail.nhn?titleId=%s\\&no=%d"%(title_id, episode)
-		curl_cmd = 'curl -s -o ./output.output '+page_url
+		if os.path.isfile('.\\output.output'):
+			os.system('del .\\output.output')
+		page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"'%(title_id, episode)
+		curl_cmd = 'curl -o .\\output.output '+page_url
+		print 'curl cmd: '+curl_cmd
 
 		curl = subprocess.Popen(curl_cmd, shell=True)
 
@@ -80,11 +81,11 @@ def main(argv):
 			if curl.poll() != None:
 				break
 
-		if not os.path.isfile('./output.output'):
+		if not os.path.isfile('.\\output.output'):
 			print '[INFO] Finish!'
 			break
 
-		output_file = open('./output.output', 'r')
+		output_file = open('.\\output.output', 'r')
 
 		for line in output_file.readlines():
 			line = line.strip()
@@ -97,9 +98,7 @@ def main(argv):
 				url_split = url.split('/')
 				output_name = "%s%s/%s_%03d_%s.jpg" %\
 							(output_dir, title, title, episode, url_split[-1])
-
-				wget_cmd = 'wget -O '+output_name+' --header="Referer: '+\
-							page_url+'" '+url
+				wget_cmd = 'wget -O '+output_name+' '+url
 				print wget_cmd
 				result = os.system(wget_cmd)
 				if result != 0:
