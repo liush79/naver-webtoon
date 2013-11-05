@@ -181,3 +181,17 @@ void CWebtoonDownloader_UIDlg::ExecuteDownload(CString cmd, CString param)
 
 	ShellExecuteEx(&si);
 }
+BOOL CWebtoonDownloader_UIDlg::PreTranslateMessage(MSG* pMsg)
+{
+	switch (pMsg->message)
+	{
+	case WM_KEYDOWN:
+		if (pMsg->wParam == VK_ESCAPE || pMsg->wParam == VK_RETURN)
+			return FALSE;
+		break;
+	default:
+		break;
+	}
+
+	return CDialog::PreTranslateMessage(pMsg);
+}

@@ -45,4 +45,5 @@ public:
 	afx_msg void OnBnClickedBtStart();
 	afx_msg void OnCbnSelchangeCbType();
 	afx_msg void OnBnClickedBtUsage();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
