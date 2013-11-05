@@ -175,7 +175,7 @@ def main(argv):
 			output_name = "%s%s\\%s_%03d_%s_%03d.jpg" %\
 							(output_dir, info['title'], info['title'], episode,
 							info['episodeTitle'], sequence)
-			wget_cmd = 'wget -O '+output_name+' '+img['url']
+			wget_cmd = 'wget -O "'+output_name+'" '+img['url']
 			result = os.system(wget_cmd.encode('euc-kr'))
 			if result != 0:
 				print '[ERROR] Failed download'
