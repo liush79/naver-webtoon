@@ -149,14 +149,14 @@ void CWebtoonDownloader_UIDlg::OnCbnSelchangeCbType()
 
 	switch (m_currentType) {
 		case 0: // naver
-			m_edTitle.EnableWindow(FALSE);
-			m_edTitleID.EnableWindow(FALSE);
-			m_edRssUrl.EnableWindow(TRUE);
-			break;
-		case 1: // daum
 			m_edTitle.EnableWindow(TRUE);
 			m_edTitleID.EnableWindow(TRUE);
 			m_edRssUrl.EnableWindow(FALSE);
+			break;
+		case 1: // daum
+			m_edTitle.EnableWindow(FALSE);
+			m_edTitleID.EnableWindow(FALSE);
+			m_edRssUrl.EnableWindow(TRUE);
 			break;
 	}
 }
