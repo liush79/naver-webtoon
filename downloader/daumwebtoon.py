@@ -104,7 +104,7 @@ def get_imginfo(id, cookie):
 
 def main(argv):
 	rss = ''
-	title = ''
+	title = None
 	episode_start = 0
 	episode_end = 9999
 	output_dir = '.\\'
@@ -143,9 +143,6 @@ def main(argv):
 		print "[ERROR] Incorrect episode range"
 		sys.exit(1)
 
-	if not os.path.isdir(output_dir+title):
-		os.makedirs(output_dir+title)
-
 	idlist = parsing_rss(rss)
 	idlist.reverse()
 	if len(idlist) < 1:
@@ -166,16 +163,23 @@ def main(argv):
 
 		info = get_imginfo(id, cookie)
 
-		if not os.path.isdir(output_dir+info['title']):
-			os.makedirs(output_dir+info['title'])
+		if title is None:
+			title = info['title'].encode('euc-kr')
+		
+		title = title.translate(None, '\\/:*?"<>|')
+		if not os.path.isdir(output_dir+title):
+			os.makedirs(output_dir+title)
 			
 		sequence = 0
 		for img in info['images']:
 			sequence += 1
+			episode_title = info['episodeTitle'].encode('euc-kr')
+			episode_title = episode_title.translate(None, '\\/:*?"<>|')
+			
 			output_name = "%s%s\\%s_%03d_%s_%03d.jpg" %\
-							(output_dir, info['title'], info['title'], episode,
-							info['episodeTitle'], sequence)
-			wget_cmd = 'wget -O "'+output_name+'" '+img['url']
+							(output_dir, title, title, episode,
+							 episode_title, sequence)
+			wget_cmd = 'wget -O "'+output_name.decode('euc-kr')+'" '+img['url']
 			result = os.system(wget_cmd.encode('euc-kr'))
 			if result != 0:
 				print '[ERROR] Failed download'

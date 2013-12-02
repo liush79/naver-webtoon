@@ -1,0 +1,1 @@
+C:\Python27\python.exe setup_naver.py py2exe
