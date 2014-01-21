@@ -166,7 +166,7 @@ def main(argv):
 		if title is None:
 			title = info['title'].encode('euc-kr')
 		
-		title = title.translate(None, '\\/:*?"<>|')
+		title = title.translate(None, '\\/:*?"<>|').strip()
 		if not os.path.isdir(output_dir+title):
 			os.makedirs(output_dir+title)
 			
@@ -174,7 +174,7 @@ def main(argv):
 		for img in info['images']:
 			sequence += 1
 			episode_title = info['episodeTitle'].encode('euc-kr')
-			episode_title = episode_title.translate(None, '\\/:*?"<>|')
+			episode_title = episode_title.translate(None, '\\/:*?"<>|').strip()
 			
 			output_name = "%s%s\\%s_%03d_%s_%03d.jpg" %\
 							(output_dir, title, title, episode,
