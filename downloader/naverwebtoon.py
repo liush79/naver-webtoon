@@ -6,6 +6,8 @@ import subprocess
 import sys
 import time
 
+import merge_image
+
 def usage():
 	print
 	print "Usage:"
@@ -87,6 +89,8 @@ def main(argv):
 
 		output_file = open('.\\output.output', 'r')
 
+		img_list = []
+		img_output = "%s%s/%s_%03d.jpg" % (output_dir, title, title, episode)
 		seq = 0
 		for line in output_file.readlines():
 			line = line.strip()
@@ -105,9 +109,17 @@ def main(argv):
 				print wget_cmd
 				result = os.system(wget_cmd)
 				if result != 0:
-					print '[ERROR] Failed download'
-
+					print '[ERROR] Failed download'					
+				img_list.append(output_name)
+	
 		output_file.close()
+		
+		# merge image files
+		merge_image.merge_image(img_output, img_list)
+		
+		# delete image files
+		for img in img_list:
+			os.remove(img)
 
 if __name__ == '__main__':
 	main(sys.argv[1:])

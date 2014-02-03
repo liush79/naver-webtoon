@@ -7,6 +7,8 @@ import subprocess
 import sys
 import time
 
+import merge_image
+
 COOKIEURL = "http://cartoon.media.daum.net/webtoon/viewer/"
 VIEWER = "http://cartoon.media.daum.net/webtoon/viewer_images.js?webtoon_episode_id="
 
@@ -15,12 +17,12 @@ def usage():
 	print "Usage:"
 	print
 	print "options:"
-	print "-e <episode range>         (default: 0-3)"
+	print "-e <episode range>         (default: 1-3)"
 	print "-r <RSS address>"
 	print "-o <output directory>      (default: ./)"
 	print
 	print "sample:"
-	print "daumwebtoon.py -e 0-999 -r http://cartoon.media.daum.net/webtoon/rss/petermon (episode 0 ~ 999 download)"
+	print "daumwebtoon.py -e 1-999 -r http://cartoon.media.daum.net/webtoon/rss/petermon (episode 1 ~ 999 download)"
 	print
 	sys.exit(2)
 
@@ -139,7 +141,7 @@ def main(argv):
 	if rss == '':
 		usage()
 
-	if (episode_start >= episode_end):
+	if (episode_start > episode_end):
 		print "[ERROR] Incorrect episode range"
 		sys.exit(1)
 
@@ -149,7 +151,7 @@ def main(argv):
 		print '[ERROR] Not found episode in RSS'
 		sys.exit(1)
 
-	episode = -1
+	episode = 0
 	cookie = None
 	for id in idlist:
 		if cookie is None:
@@ -169,22 +171,35 @@ def main(argv):
 		title = title.translate(None, '\\/:*?"<>|').strip()
 		if not os.path.isdir(output_dir+title):
 			os.makedirs(output_dir+title)
-			
+		
+		# get episode title 
+		episode_title = info['episodeTitle'].encode('euc-kr')
+		episode_title = episode_title.translate(None, '\\/:*?"<>|').strip()
+
+		# get image
+		img_list = []
+		img_output = "%s%s\\%s_%03d_%s.jpg" %\
+					(output_dir, title, title, episode, episode_title)
 		sequence = 0
 		for img in info['images']:
 			sequence += 1
-			episode_title = info['episodeTitle'].encode('euc-kr')
-			episode_title = episode_title.translate(None, '\\/:*?"<>|').strip()
 			
-			output_name = "%s%s\\%s_%03d_%s_%03d.jpg" %\
-							(output_dir, title, title, episode,
-							 episode_title, sequence)
+			output_name = "%s%s\\%s_%03d_%03d.jpg" %\
+							(output_dir, title, title, episode, sequence)
 			wget_cmd = 'wget -O "'+output_name.decode('euc-kr')+'" '+img['url']
 			result = os.system(wget_cmd.encode('euc-kr'))
 			if result != 0:
 				print '[ERROR] Failed download'
 				sys.exit(1)
+			img_list.append(output_name)
 
+		# merge image files
+		merge_image.merge_image(img_output, img_list)
+		
+		# delete image files
+		for img in img_list:
+			os.remove(img)
+			
 	print '[INFO] Finish download !! Bye~'
 
 if __name__ == '__main__':
