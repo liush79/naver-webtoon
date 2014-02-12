@@ -90,7 +90,6 @@ def main(argv):
 		output_file = open('.\\output.output', 'r')
 
 		img_list = []
-		img_output = "%s%s/%s_%03d.jpg" % (output_dir, title, title, episode)
 		seq = 0
 		for line in output_file.readlines():
 			line = line.strip()
@@ -101,20 +100,21 @@ def main(argv):
 				seq += 1
 				e_idx = line[s_idx:].find('"')
 				url = line[s_idx:s_idx+e_idx]
-				url_split = url.split('/')
-				output_name = "%s%s/%s_%03d_%03d.jpg" %\
-							(output_dir, title, title, episode, seq)
-				referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
-				wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
-				print wget_cmd
-				result = os.system(wget_cmd)
-				if result != 0:
-					print '[ERROR] Failed download'					
-				img_list.append(output_name)
+				if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png":
+					output_name = "%s%s/%s_%03d_%03d.jpg" %\
+								(output_dir, title, title, episode, seq)
+					referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
+					wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
+					print wget_cmd
+					result = os.system(wget_cmd)
+					if result != 0:
+						print '[ERROR] Failed download'	
+					img_list.append(output_name)
 	
 		output_file.close()
 		
 		# merge image files
+		img_output = "%s%s/%s_%03d" % (output_dir, title, title, episode)
 		merge_image.merge_image(img_output, img_list)
 		
 		# delete image files

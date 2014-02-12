@@ -6,6 +6,8 @@ import Image
 def merge_image(output, path_list):
 	width = 0
 	height = 0	
+	ext = '.jpg'
+	type = 'JPEG'
 	
 	try:
 		# get total image size
@@ -14,7 +16,11 @@ def merge_image(output, path_list):
 			if width < img.size[0]:
 				width = img.size[0]				
 			height += img.size[1]
-			
+		
+		if height > 65530:
+			ext = '.png'
+			type = 'PNG'
+
 		new_img = Image.new("RGB", (width, height), "white")
 		height = 0
 		
@@ -22,8 +28,8 @@ def merge_image(output, path_list):
 			img = Image.open(path)
 			new_img.paste(img, (0, height))
 			height += img.size[1]
-			
-		new_img.save(output, "JPEG")
+		
+		new_img.save(output+ext, type)
 		
 	except Exception, e:
 		print "ERROR: " + str(e)
