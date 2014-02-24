@@ -60,6 +60,8 @@ BOOL CWebtoonDownloader_UIDlg::OnInitDialog()
 	m_edEpisode1.SetWindowTextW(_T("1"));
 	m_edEpisode2.SetWindowTextW(_T("3"));
 
+	CheckDlgButton(IDC_CK_MERGE, TRUE);
+
 	m_edRssUrl.EnableWindow(FALSE);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -117,6 +119,7 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 		return;
 	}
 
+	BOOL isMerge = IsDlgButtonChecked(IDC_CK_MERGE);
 	switch (m_currentType) {
 		case 0: // naver
 			m_edTitle.GetWindowText(title);
@@ -127,8 +130,7 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 				MessageBox(_T("Input Title or TitleID"), _T("Warning"), MB_OK | MB_ICONWARNING);
 				return;
 			}
-			param.Format(_T("-e %s-%s -t %s -n %s"), ep1, ep2, titleid, title);
-			ExecuteDownload(_T(".\\naverwebtoon.exe"), param);
+			param.Format(_T("-e %s-%s -t %s -n %s -w naver"), ep1, ep2, titleid, title);
 			break;
 		case 1: // daum
 			m_edRssUrl.GetWindowText(rssurl);
@@ -137,10 +139,13 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 				MessageBox(_T("Input Rss Url"), _T("Warning"), MB_OK | MB_ICONWARNING);
 				return;
 			}
-			param.Format(_T("-e %s-%s -r %s"), ep1, ep2, rssurl);
-			ExecuteDownload(_T(".\\daumwebtoon.exe"), param);
+			param.Format(_T("-e %s-%s -r %s -w daum"), ep1, ep2, rssurl);
 			break;
 	}
+
+	if (isMerge)
+		param += " -m";
+	ExecuteDownload(_T(".\\downloader.exe"), param);
 }
 
 void CWebtoonDownloader_UIDlg::OnCbnSelchangeCbType()

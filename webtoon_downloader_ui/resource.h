@@ -13,6 +13,8 @@
 #define IDC_ED_TITLE                    1008
 #define IDC_BUTTON2                     1011
 #define IDC_BT_USAGE                    1011
+#define IDC_CHECK1                      1012
+#define IDC_CK_MERGE                    1012
 
 // Next default values for new objects
 // 
@@ -20,7 +22,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
