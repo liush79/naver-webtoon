@@ -1,1 +1,0 @@
-C:\Python27\python.exe setup_daum.py py2exe

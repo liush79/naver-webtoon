@@ -31,8 +31,10 @@ def merge_image(output, path_list):
 		
 		new_img.save(output+ext, type)
 		
+		return True
 	except Exception, e:
 		print "ERROR: " + str(e)
+		return False
 
 if __name__ == '__main__':	
 	list = []

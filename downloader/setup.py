@@ -4,5 +4,5 @@ setup(
     options = {"py2exe": {"packages": ["encodings"],
                           "bundle_files": 1}},
     zipfile = None,
-    console = ["daumwebtoon.py"],
+    console = ["downloader.py"],
 )
