@@ -1,1 +1,1 @@
-daumwebtoon.exe -e 1-3 -r http://cartoon.media.daum.net/webtoon/rss/meandi
+downloader.exe -e 1-3 -w daum -r http://cartoon.media.daum.net/webtoon/rss/meandi 
