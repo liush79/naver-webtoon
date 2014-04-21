@@ -61,6 +61,7 @@ BOOL CWebtoonDownloader_UIDlg::OnInitDialog()
 	m_edEpisode2.SetWindowTextW(_T("3"));
 
 	CheckDlgButton(IDC_CK_MERGE, TRUE);
+	CheckDlgButton(IDC_CK_PNG, FALSE);
 
 	m_edRssUrl.EnableWindow(FALSE);
 
@@ -120,6 +121,7 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 	}
 
 	BOOL isMerge = IsDlgButtonChecked(IDC_CK_MERGE);
+	BOOL isPng = IsDlgButtonChecked(IDC_CK_PNG);
 	switch (m_currentType) {
 		case 0: // naver
 			m_edTitle.GetWindowText(title);
@@ -145,6 +147,9 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 
 	if (isMerge)
 		param += " -m";
+	if (isPng)
+		param += " -p";
+
 	ExecuteDownload(_T(".\\downloader.exe"), param);
 }
 
