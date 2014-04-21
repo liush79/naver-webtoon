@@ -3,11 +3,15 @@
 import sys
 import Image
 
-def merge_image(output, path_list):
+def merge_image(output, path_list, png=False):
 	width = 0
 	height = 0	
 	ext = '.jpg'
 	type = 'JPEG'
+	
+	if png:
+		ext = '.png'
+		type = 'PNG'
 	
 	try:
 		# get total image size

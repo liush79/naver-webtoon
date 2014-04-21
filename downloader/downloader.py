@@ -20,7 +20,8 @@ def usage():
 	print "-e <episode range>         (default: 1-1)"	
 	print "-o <output directory>      (default: .\\)"
 	print "-w <daum or naver>         (default: naver)"
-	print "-m                         (Do not merge)"
+	print "-m                         (Do merge)"
+	print "-p                         (Save PNG file type. (only use with '-m')"
 	print "for Naver:"
 	print "		-t <title id>"
 	print "		-n <title string>     (optional)"
@@ -114,7 +115,7 @@ def get_imginfo(id, cookie):
 
 	return dict
 	
-def daum_main(rss, title, episode_start, episode_end, output_dir, merge):
+def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
 	idlist = parsing_rss(rss)
 	idlist.reverse()
 	if len(idlist) < 1:
@@ -167,14 +168,14 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge):
 		if merge:
 			if img_output[-4:] == '.jpg':
 				img_output = img_output[:-4]
-			if merge_image.merge_image(img_output, img_list):
+			if merge_image.merge_image(img_output, img_list, png):
 				# delete image files
 				for img in img_list:
 					os.remove(img)			
 	
 ###############################################################################
 #for Naver
-def naver_main(title_id, title, episode_start, episode_end, output_dir, merge):
+def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png):
 	if title_id == '':
 		usage()
 		
@@ -237,7 +238,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge):
 		# merge image files
 		if merge:
 			img_output = "%s%s/%s_%03d" % (output_dir, title, title, episode)
-			if merge_image.merge_image(img_output, img_list):
+			if merge_image.merge_image(img_output, img_list, png):
 				# delete image files
 				for img in img_list:
 					os.remove(img)
@@ -255,9 +256,10 @@ def main(argv):
 	finish = False
 	webtoon_type = "naver"
 	merge = False
+	png = False
 
 	try:
-		opts, args = getopt.getopt(argv, "he:t:n:o:r:w:m")
+		opts, args = getopt.getopt(argv, "he:t:n:o:r:w:mp")
 	except getopt.GetoptError, e:
 		print "[ERROR] GetoptError: "+str(e)
 		sys.exit(2)
@@ -287,12 +289,14 @@ def main(argv):
 			webtoon_type = arg
 		elif opt == "-m":
 			merge = True
+		elif opt == "-p":
+			png = True
 	
 	try:
 		if webtoon_type == 'naver':
-			naver_main(title_id, title, episode_start, episode_end, output_dir, merge)
+			naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png)
 		elif webtoon_type == 'daum':
-			daum_main(rss, title, episode_start, episode_end, output_dir, merge)
+			daum_main(rss, title, episode_start, episode_end, output_dir, merge, png)
 		else:
 			print "Unknown webtoon type: " + webtoon_type
 			usage()
