@@ -165,6 +165,8 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge):
 
 		# merge image files
 		if merge:
+			if img_output[-4:] == '.jpg':
+				img_output = img_output[:-4]
 			if merge_image.merge_image(img_output, img_list):
 				# delete image files
 				for img in img_list:
