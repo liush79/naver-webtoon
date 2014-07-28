@@ -175,7 +175,9 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
 	
 ###############################################################################
 #for Naver
-def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png):
+WEEKLY_WEBTOON = 1
+CHALLENGE_BEST = 2
+def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png, best):
 	if title_id == '':
 		usage()
 		
@@ -190,13 +192,24 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 		os.system(cmd)
 
 	find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
+	find_string_for_best = ['http://imgcomic.naver.net/nas/user_contents_data/challenge_comic', '']
 	
 	retry_episode = 0
-
+	page_url = ''
+	webtoon_type = WEEKLY_WEBTOON
+	if best:
+		webtoon_type = CHALLENGE_BEST
 	for episode in range(episode_start, episode_end + 1):
 		if os.path.isfile('.\\output.output'):
 			os.system('del .\\output.output')
-		page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"'%(title_id, episode)
+		if webtoon_type == WEEKLY_WEBTOON:
+			print 'Try to start WEEKLY webtoon download..'
+			page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"'%(title_id, episode)
+		elif webtoon_type == CHALLENGE_BEST:
+			print 'Try to start BEST challenge webtoon download..'
+			page_url = '"http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d"' % (title_id, episode)
+		else:
+			break
 		curl_cmd = 'curl -o .\\output.output '+page_url
 		print 'curl cmd: '+curl_cmd
 
@@ -206,24 +219,29 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 			time.sleep(0.1)
 			if curl.poll() != None:
 				break
-
 		if not os.path.isfile('.\\output.output'):
 			if retry_episode < 2:
 				retry_episode += 1
 				continue
 			print '[INFO] Finish!'
-			break			
+			break
+
 		retry_episode = 0
 
 		output_file = open('.\\output.output', 'r')
 
 		img_list = []
 		seq = 0
+		s_idx = -1
 		for line in output_file.readlines():
 			line = line.strip()
-			s_idx = line.find(find_string[0])
-			if s_idx == -1:
-				s_idx = line.find(find_string[1])
+			if webtoon_type == WEEKLY_WEBTOON:
+				s_idx = line.find(find_string[0])
+				if s_idx == -1:
+					s_idx = line.find(find_string[1])
+			else: # webtoon_type == CHALLENGE_BEST:
+				s_idx = line.find(find_string_for_best[0])
+
 			if s_idx != -1:
 				seq += 1
 				e_idx = line[s_idx:].find('"')
@@ -231,8 +249,13 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 				if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png":
 					output_name = "%s%s/%s_%03d_%03d.jpg" %\
 								(output_dir, title, title, episode, seq)
-					referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
-					wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
+					if webtoon_type == WEEKLY_WEBTOON:
+						referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
+						wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
+					else: # webtoon_type == CHALLENGE_BEST:
+						referer='http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
+						wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
+					
 					print wget_cmd
 					result = os.system(wget_cmd)
 					if result != 0:
@@ -263,9 +286,10 @@ def main(argv):
 	webtoon_type = "naver"
 	merge = False
 	png = False
+	best = False
 
 	try:
-		opts, args = getopt.getopt(argv, "he:t:n:o:r:w:mp")
+		opts, args = getopt.getopt(argv, "he:t:n:o:r:w:mpb")
 	except getopt.GetoptError, e:
 		print "[ERROR] GetoptError: "+str(e)
 		sys.exit(2)
@@ -297,10 +321,12 @@ def main(argv):
 			merge = True
 		elif opt == "-p":
 			png = True
-	
+		elif opt == "-b":
+			best = True
+
 	try:
 		if webtoon_type == 'naver':
-			naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png)
+			naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png, best)
 		elif webtoon_type == 'daum':
 			daum_main(rss, title, episode_start, episode_end, output_dir, merge, png)
 		else:

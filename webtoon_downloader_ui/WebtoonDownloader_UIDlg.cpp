@@ -54,7 +54,8 @@ BOOL CWebtoonDownloader_UIDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	m_cbType.InsertString(0, _T("Naver Webtoon"));
-	m_cbType.InsertString(1, _T("Daum Webtoon"));
+	m_cbType.InsertString(1, _T("Naver Best Challenge - BETA"));
+	m_cbType.InsertString(2, _T("Daum Webtoon"));	
 	m_cbType.SetCurSel(0);
 
 	m_edEpisode1.SetWindowTextW(_T("1"));
@@ -124,6 +125,7 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 	BOOL isPng = IsDlgButtonChecked(IDC_CK_PNG);
 	switch (m_currentType) {
 		case 0: // naver
+		case 1:
 			m_edTitle.GetWindowText(title);
 			m_edTitleID.GetWindowText(titleid);
 			title = title.Trim();
@@ -133,8 +135,10 @@ void CWebtoonDownloader_UIDlg::OnBnClickedBtStart()
 				return;
 			}
 			param.Format(_T("-e %s-%s -t %s -n %s -w naver"), ep1, ep2, titleid, title);
+			if (m_currentType == 1)
+				param += " -b";
 			break;
-		case 1: // daum
+		case 2: // daum
 			m_edRssUrl.GetWindowText(rssurl);
 			rssurl = rssurl.Trim();
 			if (rssurl.GetLength() == 0) {
@@ -159,11 +163,12 @@ void CWebtoonDownloader_UIDlg::OnCbnSelchangeCbType()
 
 	switch (m_currentType) {
 		case 0: // naver
+		case 1: // naver best challenge
 			m_edTitle.EnableWindow(TRUE);
 			m_edTitleID.EnableWindow(TRUE);
 			m_edRssUrl.EnableWindow(FALSE);
 			break;
-		case 1: // daum
+		case 2: // daum
 			m_edTitle.EnableWindow(FALSE);
 			m_edTitleID.EnableWindow(FALSE);
 			m_edRssUrl.EnableWindow(TRUE);
