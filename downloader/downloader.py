@@ -190,6 +190,8 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 		os.system(cmd)
 
 	find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
+	
+	retry_episode = 0
 
 	for episode in range(episode_start, episode_end + 1):
 		if os.path.isfile('.\\output.output'):
@@ -206,8 +208,12 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 				break
 
 		if not os.path.isfile('.\\output.output'):
+			if retry_episode < 2:
+				retry_episode += 1
+				continue
 			print '[INFO] Finish!'
-			break
+			break			
+		retry_episode = 0
 
 		output_file = open('.\\output.output', 'r')
 
