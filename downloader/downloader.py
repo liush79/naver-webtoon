@@ -220,7 +220,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 			if curl.poll() != None:
 				break
 		if not os.path.isfile('.\\output.output'):
-			if retry_episode < 10:
+			if retry_episode < 5:
 				retry_episode += 1
 				continue
 			print '[INFO] Finish!'
