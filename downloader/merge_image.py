@@ -33,7 +33,7 @@ def merge_image(output, path_list, png=False):
 			new_img.paste(img, (0, height))
 			height += img.size[1]
 		
-		new_img.save(output+ext, type)
+		new_img.save(output+ext, type, subsampling=0, quality=95)
 		
 		return True
 	except Exception, e:

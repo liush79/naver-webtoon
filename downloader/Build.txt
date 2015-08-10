@@ -7,10 +7,7 @@
 3. Install PIL 1.1.7 (Python Imaging Library 1.1.7 for Python 2.7) 
 	- http://www.pythonware.com/products/pil/
 
-4-1. Run make_naver.bat
-	- This is the same 'Run C:\Python27\python.exe setup_naver.py py2exe'
-
-4-2. Run make_daum.bat
-	- This is the same 'Run C:\Python27\python.exe setup_daum.py py2exe'
+4. Run make.bat
+	- This is the same 'Run C:\Python27\python.exe setup.py py2exe'
 
 5. You can get the naverwebtoon.exe or daumwebtoon.exe in dist folder.
