@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebtoonDownloader_UI", "WebtoonDownloader_UI.vcproj", "{2EC27400-4DB6-4FF8-901C-3F91666B234E}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WebtoonDownloader_UI", "WebtoonDownloader_UI.vcxproj", "{2EC27400-4DB6-4FF8-901C-3F91666B234E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
