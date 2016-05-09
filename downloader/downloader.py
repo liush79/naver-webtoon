@@ -38,16 +38,16 @@ def usage():
 
 
 ###############################################################################
-#for daum
+# for daum
 def parsing_rss(rss):
     idlist = []
     item = False
 
     if os.path.isfile('.\\out.output'):
         os.system('del .\\out.output')
-    curl_cmd = 'curl -s -o .\\out.output '+rss
+    curl_cmd = 'curl -s -o .\\out.output ' + rss
     curl = subprocess.Popen(curl_cmd, shell=True)
-    for i in range(0,50):	# 5 seconds
+    for i in range(0, 50):  # 5 seconds
         time.sleep(0.1)
         if curl.poll() != None:
             break
@@ -70,7 +70,7 @@ def parsing_rss(rss):
                     print '[ERROR] Failed parsing RSS file'
                     idlist = []
                     break
-                id = line[idx+1:]
+                id = line[idx + 1:]
                 # push ID to idlist
                 idlist.append(id)
             if line.find("</item>") == 0:
@@ -83,11 +83,11 @@ def get_cookie(id):
     cookie = '.\\cookie.jar'
 
     if os.path.isfile(cookie):
-        os.system('del '+cookie)
+        os.system('del ' + cookie)
 
-    curl_cmd = 'curl -s -o ./out.output --cookie-jar '+cookie+' '+COOKIEURL+id
+    curl_cmd = 'curl -s -o ./out.output --cookie-jar ' + cookie + ' ' + COOKIEURL + id
     curl = subprocess.Popen(curl_cmd, shell=True)
-    for i in range(0,50):	# 5 seconds
+    for i in range(0, 50):  # 5 seconds
         time.sleep(0.1)
         if curl.poll() != None:
             break
@@ -102,9 +102,9 @@ def get_cookie(id):
 def get_imginfo(id, cookie):
     if os.path.isfile('.\\out.output'):
         os.system('del .\\out.output')
-    curl_cmd = 'curl -s -o .\\out.output --cookie '+cookie+' '+VIEWER+id
+    curl_cmd = 'curl -s -o .\\out.output --cookie ' + cookie + ' ' + VIEWER + id
     curl = subprocess.Popen(curl_cmd, shell=True)
-    for i in range(0,50):	# 5 seconds
+    for i in range(0, 50):  # 5 seconds
         time.sleep(0.1)
         if curl.poll() != None:
             break
@@ -145,8 +145,8 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
             title = info['title'].encode('euc-kr')
 
         title = title.translate(None, '\\/:*?"<>|').strip()
-        if not os.path.isdir(output_dir+title):
-            os.makedirs(output_dir+title)
+        if not os.path.isdir(output_dir + title):
+            os.makedirs(output_dir + title)
 
         # get episode title
         episode_title = info['episodeTitle'].encode('euc-kr')
@@ -162,7 +162,7 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
 
             output_name = "%s%s\\%s_%03d_%03d.jpg" % \
                           (output_dir, title, title, episode, sequence)
-            wget_cmd = 'wget -O "'+output_name.decode('euc-kr')+'" '+img['url']
+            wget_cmd = 'wget -O "' + output_name.decode('euc-kr') + '" ' + img['url']
             result = os.system(wget_cmd.encode('euc-kr'))
             if result != 0:
                 print '[ERROR] Failed download'
@@ -178,8 +178,9 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
                 for img in img_list:
                     os.remove(img)
 
+
 ###############################################################################
-#for Naver
+# for Naver
 WEEKLY_WEBTOON = 1
 CHALLENGE_BEST = 2
 
@@ -194,11 +195,12 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
     if (episode_start > episode_end):
         print "[ERROR] Incorrect episode range"
 
-    if not os.path.isdir(output_dir+title):
-        cmd = 'md "%s"'%(output_dir+title)
+    if not os.path.isdir(output_dir + title):
+        cmd = 'md "%s"' % (output_dir + title)
         os.system(cmd)
 
-    find_string = ['http://imgcomic.naver.com/webtoon/'+title_id+'/', 'http://imgcomic.naver.net/webtoon/'+title_id+'/']
+    find_string = ['http://imgcomic.naver.com/webtoon/' + title_id + '/',
+                   'http://imgcomic.naver.net/webtoon/' + title_id + '/']
     find_string_for_best = ['http://imgcomic.naver.net/nas/user_contents_data/challenge_comic', '']
 
     retry_episode = 0
@@ -211,23 +213,23 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
             os.system('del .\\output.output')
         if webtoon_type == WEEKLY_WEBTOON:
             print 'Try to start WEEKLY webtoon download..'
-            page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"'%(title_id, episode)
+            page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"' % (title_id, episode)
         elif webtoon_type == CHALLENGE_BEST:
             print 'Try to start BEST challenge webtoon download..'
             page_url = '"http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d"' % (title_id, episode)
         else:
             break
-        curl_cmd = 'curl -o .\\output.output '+page_url
-        print 'curl cmd: '+curl_cmd
+        curl_cmd = 'curl -o .\\output.output ' + page_url
+        print 'curl cmd: ' + curl_cmd
 
         curl = subprocess.Popen(curl_cmd, shell=True)
 
-        for i in range(0,30):	# 3 seconds
+        for i in range(0, 30):  # 3 seconds
             time.sleep(0.1)
             if curl.poll() != None:
                 break
         if not os.path.isfile('.\\output.output'):
-            if retry_episode < 2:
+            if retry_episode < 5:
                 retry_episode += 1
                 continue
             print '[INFO] Finish!'
@@ -246,22 +248,23 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
                 s_idx = line.find(find_string[0])
                 if s_idx == -1:
                     s_idx = line.find(find_string[1])
-            else: # webtoon_type == CHALLENGE_BEST:
+            else:  # webtoon_type == CHALLENGE_BEST:
                 s_idx = line.find(find_string_for_best[0])
 
             if s_idx != -1:
                 seq += 1
                 e_idx = line[s_idx:].find('"')
-                url = line[s_idx:s_idx+e_idx]
+                url = line[s_idx:s_idx + e_idx]
                 if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png":
                     output_name = "%s%s/%s_%03d_%03d.jpg" % \
                                   (output_dir, title, title, episode, seq)
                     if webtoon_type == WEEKLY_WEBTOON:
-                        referer='http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
-                        wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
-                    else: # webtoon_type == CHALLENGE_BEST:
-                        referer='http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d'%(title_id, episode)
-                        wget_cmd = 'wget -O '+output_name+' --header="Referer: '+referer+'" '+url
+                        referer = 'http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
+                        wget_cmd = 'wget -O ' + output_name + ' --header="Referer: ' + referer + '" ' + url
+                    else:  # webtoon_type == CHALLENGE_BEST:
+                        referer = 'http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (
+                        title_id, episode)
+                        wget_cmd = 'wget -O ' + output_name + ' --header="Referer: ' + referer + '" ' + url
 
                     print wget_cmd
                     result = os.system(wget_cmd)
@@ -281,7 +284,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 
 
 ###############################################################################
-#for common
+# for common
 def main(argv):
     title_id = ''
     title = None
@@ -298,7 +301,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "he:t:n:o:r:w:mpb")
     except getopt.GetoptError, e:
-        print "[ERROR] GetoptError: "+str(e)
+        print "[ERROR] GetoptError: " + str(e)
         sys.exit(2)
 
     for opt, arg in opts:
@@ -343,6 +346,6 @@ def main(argv):
     except Exception, e:
         print '[ERROR] ', e
 
+
 if __name__ == '__main__':
     main(sys.argv[1:])
-
