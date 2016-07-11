@@ -255,7 +255,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
                 seq += 1
                 e_idx = line[s_idx:].find('"')
                 url = line[s_idx:s_idx + e_idx]
-                if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png":
+                if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png" or url[-4:].lower() == ".gif":
                     output_name = "%s%s/%s_%03d_%03d.jpg" % \
                                   (output_dir, title, title, episode, seq)
                     if webtoon_type == WEEKLY_WEBTOON:
