@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 
 import merge_image
 
@@ -86,6 +87,7 @@ def get_cookie(id):
         os.system('del ' + cookie)
 
     curl_cmd = 'curl -s -o ./out.output --cookie-jar ' + cookie + ' ' + COOKIEURL + id
+    # print 'CMD:', curl_cmd
     curl = subprocess.Popen(curl_cmd, shell=True)
     for i in range(0, 50):  # 5 seconds
         time.sleep(0.1)
@@ -158,11 +160,16 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
                      (output_dir, title, title, episode, episode_title)
         sequence = 0
         for img in info['images']:
+            # flash type should pass.
+            if 'mediaType' in img and img['mediaType'] == 'flash':
+                continue
+
             sequence += 1
 
             output_name = "%s%s\\%s_%03d_%03d.jpg" % \
                           (output_dir, title, title, episode, sequence)
             wget_cmd = 'wget -O "' + output_name.decode('euc-kr') + '" ' + img['url']
+            # print 'CMD:', wget_cmd
             result = os.system(wget_cmd.encode('euc-kr'))
             if result != 0:
                 print '[ERROR] Failed download'
@@ -345,6 +352,7 @@ def main(argv):
         print '[INFO] Finish download !! Bye~'
     except Exception, e:
         print '[ERROR] ', e
+        print traceback.print_stack()
 
 
 if __name__ == '__main__':
