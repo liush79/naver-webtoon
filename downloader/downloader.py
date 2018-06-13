@@ -196,18 +196,19 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
     if title_id == '':
         usage()
 
-    if title == None:
+    if title is None:
         title = ''
 
-    if (episode_start > episode_end):
+    if episode_start > episode_end:
         print "[ERROR] Incorrect episode range"
 
     if not os.path.isdir(output_dir + title):
         cmd = 'md "%s"' % (output_dir + title)
         os.system(cmd)
 
-    find_string = ['http://imgcomic.naver.com/webtoon/' + title_id + '/',
-                   'http://imgcomic.naver.net/webtoon/' + title_id + '/']
+    find_strings = ['http://imgcomic.naver.com/webtoon/' + title_id + '/',
+                    'http://imgcomic.naver.net/webtoon/' + title_id + '/',
+                    'https://image-comic.pstatic.net/webtoon/' + title_id + '/']
     find_string_for_best = ['http://imgcomic.naver.net/nas/user_contents_data/challenge_comic', '']
 
     retry_episode = 0
@@ -252,9 +253,10 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
         for line in output_file.readlines():
             line = line.strip()
             if webtoon_type == WEEKLY_WEBTOON:
-                s_idx = line.find(find_string[0])
-                if s_idx == -1:
-                    s_idx = line.find(find_string[1])
+                for find_string in find_strings:
+                    s_idx = line.find(find_string)
+                    if s_idx != -1:
+                        break
             else:  # webtoon_type == CHALLENGE_BEST:
                 s_idx = line.find(find_string_for_best[0])
 
@@ -268,6 +270,9 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
                     if webtoon_type == WEEKLY_WEBTOON:
                         referer = 'http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
                         wget_cmd = 'wget -O ' + output_name + ' --header="Referer: ' + referer + '" ' + url
+                        if url.startswith('https://'):
+                            wget_cmd += ' --no-check-certificate'
+
                     else:  # webtoon_type == CHALLENGE_BEST:
                         referer = 'http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (
                         title_id, episode)

@@ -17,6 +17,7 @@ def merge_image(output, path_list, png=False):
         type = 'PNG'
 
     try:
+        # print path_list
         # get total image size
         for path in path_list:
             img = Image.open(path)

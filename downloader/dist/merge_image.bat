@@ -1,1 +1,1 @@
-merge_image.exe -d "d:\download\마음의소리"
+merge_image.exe -d "d:\images\"
