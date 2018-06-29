@@ -3,6 +3,7 @@
 import getopt
 import json
 import os
+import requests
 import subprocess
 import sys
 import time
@@ -12,6 +13,30 @@ import merge_image
 
 COOKIEURL = "http://cartoon.media.daum.net/webtoon/viewer/"
 VIEWER = "http://cartoon.media.daum.net/webtoon/viewer_images.js?webtoon_episode_id="
+
+import sys, os
+
+
+def override_where():
+    """ overrides certifi.core.where to return actual location of cacert.pem"""
+    # change this to match the location of cacert.pem
+    return os.path.abspath("cacert.pem")
+
+
+# is the program compiled?
+if hasattr(sys, "frozen"):
+    import certifi.core
+
+    os.environ["REQUESTS_CA_BUNDLE"] = override_where()
+    certifi.core.where = override_where
+
+    # delay importing until after where() has been replaced
+    import requests.utils
+    import requests.adapters
+    # replace these variables in case these modules were
+    # imported before we replaced certifi.core.where
+    requests.utils.DEFAULT_CA_BUNDLE_PATH = override_where()
+    requests.adapters.DEFAULT_CA_BUNDLE_PATH = override_where()
 
 
 def usage():
@@ -192,6 +217,35 @@ WEEKLY_WEBTOON = 1
 CHALLENGE_BEST = 2
 
 
+# def _wget(outfile, referer, url):
+#     wget_cmd = 'wget -O ' + outfile
+#     if url.startswith('https://'):
+#         wget_cmd += ' --no-check-certificate'
+#     if referer:
+#         wget_cmd += ' --header="Referer: ' + referer + '"'
+#     wget_cmd += ' "' + url + '"'
+#     print wget_cmd
+#     return os.system(wget_cmd)
+#
+
+def _down(outfile, referer, url, cmp_no=False):
+    res = requests.get(url, headers={'Referer': referer})
+    if res.status_code != 200:
+        print '[FAILED] response code = %d, content: %s' % (res.status_code, res.content)
+        return 1
+    if cmp_no:
+        result_url_no = res.url.split('&')[-1]
+        request_url_no = url.split('&')[-1]
+        if result_url_no != request_url_no:
+            print '[FAILED] different url no. (request_url_no: %s, result_url_no: %s), It may be the LAST episode' % \
+                  (request_url_no, result_url_no)
+            return 1
+    print 'Try to download \'%s\'' % outfile
+    with open(outfile, 'wb') as f:
+        f.write(res.content)
+    return 0
+
+
 def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, png, best):
     if title_id == '':
         usage()
@@ -206,13 +260,13 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
         cmd = 'md "%s"' % (output_dir + title)
         os.system(cmd)
 
-    find_strings = ['http://imgcomic.naver.com/webtoon/' + title_id + '/',
-                    'http://imgcomic.naver.net/webtoon/' + title_id + '/',
+    find_strings = ['https://imgcomic.naver.com/webtoon/' + title_id + '/',
+                    'https://imgcomic.naver.net/webtoon/' + title_id + '/',
                     'https://image-comic.pstatic.net/webtoon/' + title_id + '/']
-    find_string_for_best = ['http://imgcomic.naver.net/nas/user_contents_data/challenge_comic', '']
+    find_string_for_best = ['https://imgcomic.naver.net/nas/user_contents_data/challenge_comic', '']
 
     retry_episode = 0
-    page_url = ''
+    referer = ''
     webtoon_type = WEEKLY_WEBTOON
     if best:
         webtoon_type = CHALLENGE_BEST
@@ -221,22 +275,14 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
             os.system('del .\\output.output')
         if webtoon_type == WEEKLY_WEBTOON:
             print 'Try to start WEEKLY webtoon download..'
-            page_url = '"http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d"' % (title_id, episode)
-        elif webtoon_type == CHALLENGE_BEST:
+            page_url = 'https://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
+            referer = 'https://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
+        else:   # webtoon_type == CHALLENGE_BEST:
             print 'Try to start BEST challenge webtoon download..'
-            page_url = '"http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d"' % (title_id, episode)
-        else:
-            break
-        curl_cmd = 'curl -o .\\output.output ' + page_url
-        print 'curl cmd: ' + curl_cmd
+            page_url = 'https://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
+            referer = 'https://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
 
-        curl = subprocess.Popen(curl_cmd, shell=True)
-
-        for i in range(0, 30):  # 3 seconds
-            time.sleep(0.1)
-            if curl.poll() != None:
-                break
-        if not os.path.isfile('.\\output.output'):
+        if _down('./output.output', referer, page_url, True) != 0:
             if retry_episode < 5:
                 retry_episode += 1
                 continue
@@ -267,19 +313,8 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
                 if url[-4:].lower() == ".jpg" or url[-4:].lower() == ".png" or url[-4:].lower() == ".gif":
                     output_name = "%s%s/%s_%03d_%03d.jpg" % \
                                   (output_dir, title, title, episode, seq)
-                    if webtoon_type == WEEKLY_WEBTOON:
-                        referer = 'http://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
-                        wget_cmd = 'wget -O ' + output_name + ' --header="Referer: ' + referer + '" ' + url
-                        if url.startswith('https://'):
-                            wget_cmd += ' --no-check-certificate'
 
-                    else:  # webtoon_type == CHALLENGE_BEST:
-                        referer = 'http://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (
-                        title_id, episode)
-                        wget_cmd = 'wget -O ' + output_name + ' --header="Referer: ' + referer + '" ' + url
-
-                    print wget_cmd
-                    result = os.system(wget_cmd)
+                    result = _down(output_name, referer, url)
                     if result != 0:
                         print '[ERROR] Failed download'
                     img_list.append(output_name)
