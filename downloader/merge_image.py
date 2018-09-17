@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
+from PIL import Image
+
 import getopt
 import sys
-import Image
 import os
 
 
@@ -40,17 +41,17 @@ def merge_image(output, path_list, png=False):
         new_img.save(output+ext, type, subsampling=0, quality=95)
 
         return True
-    except Exception, e:
-        print "ERROR: " + str(e)
+    except Exception as e:
+        print ("ERROR: " + str(e))
         return False
 
 
 def usage():
-    print '====================================================='
-    print 'usage: merge_image.exe <folder name>'
-    print '\t example: merge_image.exe -d myfolder'
-    print '\t example: merge_image.exe -p -d myfolder (png)'
-    print '====================================================='
+    print ('=====================================================')
+    print ('usage: merge_image.exe <folder name>')
+    print ('\t example: merge_image.exe -d myfolder')
+    print ('\t example: merge_image.exe -p -d myfolder (png)')
+    print ('=====================================================')
     sys.exit(1)
 
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hpd:", ["help", "png", "directory="])
     except getopt.GetoptError as err:
-        print str(err)
+        print (str(err))
         usage()
 
     for opt, arg in opts:
@@ -78,8 +79,8 @@ if __name__ == '__main__':
 
     for root, dirs, files in os.walk(folder_name):
         idx = root.rfind('\\')
-        print 'directory:', root
-        print 'files:', files
+        print ('directory:', root)
+        print ('files:', files)
         if idx == -1:   # root directory
             output_name = '%s\\%s_merge' % (root, root)
         else:
@@ -89,5 +90,5 @@ if __name__ == '__main__':
         for _file in files:
             flist.append('%s\\%s' % (root, _file))
         merge_image(output_name, flist, type_png)
-    print 'Finish !!'
+    print ('Finish !!')
 

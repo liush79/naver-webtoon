@@ -41,24 +41,24 @@ if hasattr(sys, "frozen"):
 
 def usage():
     print
-    print "Usage:"
+    print ("Usage:")
     print
-    print "options:"
-    print "-e <episode range>         (default: 1-1)"
-    print "-o <output directory>      (default: .\\)"
-    print "-w <daum or naver>         (default: naver)"
-    print "-m                         (Do merge)"
-    print "-p                         (Save PNG file type. (only use with '-m')"
-    print "for Naver:"
-    print "		-t <title id>"
-    print "		-n <title string>     (optional)"
-    print "for daum:"
-    print "		-r <RSS address>"
+    print ("options:")
+    print ("-e <episode range>         (default: 1-1)")
+    print ("-o <output directory>      (default: .\\)")
+    print ("-w <daum or naver>         (default: naver)")
+    print ("-m                         (Do merge)")
+    print ("-p                         (Save PNG file type. (only use with '-m')")
+    print ("for Naver:")
+    print ("		-t <title id>")
+    print ("		-n <title string>     (optional)")
+    print ("for daum:")
+    print ("		-r <RSS address>")
     print
     print
-    print "sample:"
-    print "		webtoon.py -e 1-10 -t 22897 -w naver (episode 1 ~ 10 download)"
-    print "		webtoon.py -e 1-3 -t 22897 -w daum (episode 1 ~ 3 download)"
+    print ("sample:")
+    print ("		webtoon.py -e 1-10 -t 22897 -w naver (episode 1 ~ 10 download)")
+    print ("		webtoon.py -e 1-3 -t 22897 -w daum (episode 1 ~ 3 download)")
     print
     sys.exit(2)
 
@@ -78,7 +78,7 @@ def parsing_rss(rss):
         if curl.poll() != None:
             break
     if not os.path.isfile('.\\out.output'):
-        print '[ERROR] Failed download RSS file.'
+        print ('[ERROR] Failed download RSS file.')
         sys.exit(2)
 
     output_file = open('.\\out.output', 'r')
@@ -93,7 +93,7 @@ def parsing_rss(rss):
                 line = line[:idx]
                 idx = line.rfind('/')
                 if idx < 0:
-                    print '[ERROR] Failed parsing RSS file'
+                    print ('[ERROR] Failed parsing RSS file')
                     idlist = []
                     break
                 id = line[idx + 1:]
@@ -122,7 +122,7 @@ def get_cookie(id):
     if os.path.getsize(cookie) > 0:
         return cookie
 
-    print '[ERROR] Failed get cookie'
+    print ('[ERROR] Failed get cookie')
     sys.exit(1)
 
 
@@ -136,7 +136,7 @@ def get_imginfo(id, cookie):
         if curl.poll() != None:
             break
     if not os.path.isfile('.\\out.output'):
-        print '[ERROR] Failed download page.'
+        print ('[ERROR] Failed download page.')
         sys.exit(2)
 
     dict = {}
@@ -151,7 +151,7 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
     idlist = parsing_rss(rss)
     idlist.reverse()
     if len(idlist) < 1:
-        print '[ERROR] Not found episode in RSS'
+        print ('[ERROR] Not found episode in RSS')
         sys.exit(1)
 
     episode = 0
@@ -197,7 +197,7 @@ def daum_main(rss, title, episode_start, episode_end, output_dir, merge, png):
             # print 'CMD:', wget_cmd
             result = os.system(wget_cmd.encode('euc-kr'))
             if result != 0:
-                print '[ERROR] Failed download'
+                print ('[ERROR] Failed download')
                 sys.exit(1)
             img_list.append(output_name)
 
@@ -231,16 +231,16 @@ CHALLENGE_BEST = 2
 def _down(outfile, referer, url, cmp_no=False):
     res = requests.get(url, headers={'Referer': referer})
     if res.status_code != 200:
-        print '[FAILED] response code = %d, content: %s' % (res.status_code, res.content)
+        print ('[FAILED] response code = %d, content: %s' % (res.status_code, res.content))
         return 1
     if cmp_no:
         result_url_no = res.url.split('&')[-1]
         request_url_no = url.split('&')[-1]
         if result_url_no != request_url_no:
-            print '[FAILED] different url no. (request_url_no: %s, result_url_no: %s), It may be the LAST episode' % \
-                  (request_url_no, result_url_no)
+            print ('[FAILED] different url no. (request_url_no: %s, result_url_no: %s), It may be the LAST episode' % \
+                  (request_url_no, result_url_no))
             return 1
-    print 'Try to download \'%s\'' % outfile
+    print ('Try to download \'%s\'' % outfile)
     with open(outfile, 'wb') as f:
         f.write(res.content)
     return 0
@@ -254,7 +254,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
         title = ''
 
     if episode_start > episode_end:
-        print "[ERROR] Incorrect episode range"
+        print ("[ERROR] Incorrect episode range")
 
     if not os.path.isdir(output_dir + title):
         cmd = 'md "%s"' % (output_dir + title)
@@ -274,11 +274,11 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
         if os.path.isfile('.\\output.output'):
             os.system('del .\\output.output')
         if webtoon_type == WEEKLY_WEBTOON:
-            print 'Try to start WEEKLY webtoon download..'
+            print ('Try to start WEEKLY webtoon download..')
             page_url = 'https://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
             referer = 'https://comic.naver.com/webtoon/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
         else:   # webtoon_type == CHALLENGE_BEST:
-            print 'Try to start BEST challenge webtoon download..'
+            print ('Try to start BEST challenge webtoon download..')
             page_url = 'https://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
             referer = 'https://comic.naver.com/bestChallenge/detail.nhn?titleId=%s&no=%d' % (title_id, episode)
 
@@ -286,7 +286,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
             if retry_episode < 5:
                 retry_episode += 1
                 continue
-            print '[INFO] Finish!'
+            print ('[INFO] Finish!')
             break
 
         retry_episode = 0
@@ -316,7 +316,7 @@ def naver_main(title_id, title, episode_start, episode_end, output_dir, merge, p
 
                     result = _down(output_name, referer, url)
                     if result != 0:
-                        print '[ERROR] Failed download'
+                        print ('[ERROR] Failed download')
                     img_list.append(output_name)
 
         output_file.close()
@@ -347,8 +347,8 @@ def main(argv):
 
     try:
         opts, args = getopt.getopt(argv, "he:t:n:o:r:w:mpb")
-    except getopt.GetoptError, e:
-        print "[ERROR] GetoptError: " + str(e)
+    except getopt.GetoptError as e:
+        print ("[ERROR] GetoptError: " + str(e))
         sys.exit(2)
 
     for opt, arg in opts:
@@ -360,7 +360,7 @@ def main(argv):
                 episode_start = int(parse[0])
                 episode_end = int(parse[1])
             except:
-                print "[ERROR] Incorrect episode range"
+                print ("[ERROR] Incorrect episode range")
                 usage()
         elif opt == "-r":
             rss = arg
@@ -387,12 +387,12 @@ def main(argv):
         elif webtoon_type == 'daum':
             daum_main(rss, title, episode_start, episode_end, output_dir, merge, png)
         else:
-            print "Unknown webtoon type: " + webtoon_type
+            print ("Unknown webtoon type: " + webtoon_type)
             usage()
-        print '[INFO] Finish download !! Bye~'
-    except Exception, e:
-        print '[ERROR] ', e
-        print traceback.print_stack()
+        print ('[INFO] Finish download !! Bye~')
+    except Exception as e:
+        print ('[ERROR] ', e)
+        print (traceback.print_stack())
 
 
 if __name__ == '__main__':
