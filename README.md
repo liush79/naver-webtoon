@@ -6,10 +6,10 @@ Automatically exported from code.google.com/p/naver-webtoon
   * https://www.python.org/ftp/python/2.7.15/python-2.7.15.msi
 
 * Install moudles
-    python -m pip install pip --upgrade
-    python -m pip install pillow
-    python -m pip install requests
-    python -m pip install py2exe_py2
+  * python -m pip install pip --upgrade
+  * python -m pip install pillow
+  * python -m pip install requests
+  * python -m pip install py2exe_py2
 
 * Copy cacert.pem bundle file. (for requests library)
   * copy to .\downloader\dist\
